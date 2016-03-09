@@ -1,6 +1,7 @@
 %% This code will conduct the bivariate analysis on Prey and Focal species  on dataframes created in R
 %tic % start timer
-cd('C:\Users\rystanley\Documents\GitHub\Groundfish\Data\Crab\');
+%cd('C:\Users\rystanley\Documents\GitHub\Groundfish\Data\Crab\'); % for surface
+cd('C:\Users\RyanStanley\Documents\GitHub\Groundfish\Data\Crab\'); % for samsung
 CapDir=cd;
 dirinfo=dir();
 dirinfo(~[dirinfo.isdir])=[];%obtain the names of all the subfolders
@@ -22,7 +23,7 @@ Species='Crab';
                 year=flipdim(year,2);
                 year=flipdim(year(5:8),2);
 				nafo=dirinfo(1).name;
-				fileCSV=[Cod '_' Species '_' nafo '_' zone '_' year '_'  'BivariateOutput.dat'] % taking this off will print the name so taht the timer can be associated with a file interval in the data
+				fileCSV=['Cod' '_' Species '_' nafo '_' year '_'  'BivariateOutput.dat'] % taking this off will print the name so taht the timer can be associated with a file interval in the data
                 csvwrite(fileCSV,output) % save the data in csv format (.dat) file which can be opened in R
                
 				% this code will jacknife the data to create parameter estimates and error
@@ -57,7 +58,7 @@ Species='Crab';
 					   clear c d e f g h allJack dataJ randrow						 
                        end
                     summary=reshape(summary,6*1000,3);
-                    SeName=[Species '_' 'Capelin' '_' nafo '_' zone '_' year '_' 'BootsErrorOutput.dat']
+                    SeName=['Cod' '_' Species '_' nafo '_' year '_' 'BootsErrorOutput.dat']
                     csvwrite(SeName,summary)                            
                     toc % end timer and print time in seconds
                 clear year fileCSV output data

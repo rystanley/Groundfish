@@ -1,7 +1,7 @@
 %% This code will conduct the bivariate analysis on Prey and Focal species  on dataframes created in R
-%tic % start timer
+
 %cd('C:\Users\rystanley\Documents\GitHub\Groundfish\Data\Crab\'); % for surface
-cd('C:\Users\RyanStanley\Documents\GitHub\Groundfish\Data\Crab\'); % for samsung
+cd('C:\Users\RyanStanley\Documents\GitHub\Groundfish\Data\Shrimp\'); % for samsung
 CapDir=cd;
 dirinfo=dir();
 dirinfo(~[dirinfo.isdir])=[];%obtain the names of all the subfolders
@@ -10,10 +10,10 @@ first='.\'; % This is for creating the sub directories and the current directory
 
 for k=1:length(dirinfo)
 cd(CapDir)%this resets the current directory to the root Zone folder
-thisdir=dirinfo(k).name;%Sets "thisdir" to the name of the next folder in sequence
+thisdir=dirinfo(k).name; %Sets "thisdir" to the name of the next folder in sequence
 a=[first thisdir];%this compiles th enext folder in sequence and adds ./ to the front so the current directory can be changed to the new folder
 cd(a);
-Species='Crab';
+Species='Shrimp';
     FileList = dir('*.dat');
             for i=1:length(FileList)
                tic % start timer to see how long each loop takes
@@ -58,7 +58,7 @@ Species='Crab';
 					   clear c d e f g h allJack dataJ randrow						 
                        end
                     summary=reshape(summary,6*1000,3);
-                    SeName=[Species '_' 'Capelin' '_' nafo '_' zone '_' year '_' 'BootsErrorOutput.dat']
+                    SeName=['Cod' '_' Species '_' nafo '_' year '_' 'BootsErrorOutput.dat']
                     csvwrite(SeName,summary)                            
                     toc % end timer and print time in seconds
                 clear year fileCSV output data
