@@ -56,10 +56,21 @@ Species='Crab';
                        summary(q,:,:)=allJack; 
 					   clear c d e f g h allJack dataJ randrow						 
                        end
-                    summary=reshape(summary,6*1000,3);
-                    SeName=[Species '_' 'Capelin' '_' nafo '_' zone '_' year '_' 'BootsErrorOutput.dat']
-                    csvwrite(SeName,summary)                            
-                    toc % end timer and print time in seconds
+                        % the summary file is a three dimensional array I
+                        % created to try and speed up the process. I will
+                        % reshape here. Since the reshape command the way ti is
+                        % written won't preserve the order of the loops
+                        % (Data-1 : 10,20.60,100,150) on top of (Data-2 :
+                        % 10,20.60,100,150) it instead stacks the space
+                        % intervals on top i.e.
+                        % (Combo=10,10,20,20,50,50,60,60,100,100,150,150)
+                         %however since it is means of a given value I can
+                         %seperate using the distances (col 1) as factors to
+                         %get the mean Se for all jacknifed data. 
+                       summary=reshape(summary,6*1000,3);
+                       SeName=[Species '_' 'Capelin' '_' nafo '_' zone '_' year '_' 'BootsErrorOutput.dat']
+                       csvwrite(SeName,summary)                            
+                    	toc % end timer and print time in seconds
                 clear year fileCSV output data
             end
     end
