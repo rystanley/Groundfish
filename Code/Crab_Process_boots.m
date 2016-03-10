@@ -22,7 +22,7 @@ Species='Crab';
                 year=FileList(i).name; % extract the year from the dataframe
                 year=flipdim(year,2);
                 year=flipdim(year(5:8),2);
-				nafo=dirinfo(1).name;
+				nafo=dirinfo(i).name;
 				fileCSV=['Cod' '_' Species '_' nafo '_' year '_'  'BivariateOutput.dat'] % taking this off will print the name so taht the timer can be associated with a file interval in the data
                 csvwrite(fileCSV,output) % save the data in csv format (.dat) file which can be opened in R
                

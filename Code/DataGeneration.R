@@ -13,7 +13,6 @@ div[[1]] <- c("2J","3K","3L")
 div[[2]] <- c("3N","3O")
 div[[3]] <- c("2J","3K","3L","3N","30")
 
-divs <- data.frame(JKL=c("2J","3K","3L",NA,NA),NO=c("3N","3O"),JKLNO=c("2J","3K","3L","3N","30"))
 
 ##Cod Shrimp Data ------------------
 CodShrimp <- dfodata[,c(CoreData,"GADUS.MORHUA")]
@@ -28,7 +27,7 @@ CodShrimp[is.na(CodShrimp)]=0 #convert the NAs to 0
 
 for (d in 1:3){
   for (i in years){
-    temp=filter(CodShrimp,YEAR==i,DIV%in%div[[d]])%>%select(.,one_of(c("LAT_DEC","LONG_DEC","Cod","Shrimp")))
+    temp=filter(CodShrimp,YEAR==i,DIV%in%div[[d]])%>%select(.,one_of(c("LAT_DEC","LONG_DEC","Shrimp","Cod")))
     Name=paste(div[[d]],collapse="")
     if(sum(temp$Cod,na.rm=T)>0 & sum(temp$Shrimp,na.rm=T)>0)
       { # make sure there is data first
@@ -49,7 +48,7 @@ CodCrab[is.na(CodCrab)]=0 #convert the NAs to 0
 
 for (d in 1:3){
   for (i in years){
-    temp=filter(CodCrab,YEAR==i,DIV%in%div[[d]])%>%select(.,one_of(c("LAT_DEC","LONG_DEC","Cod","Crab")))
+    temp=filter(CodCrab,YEAR==i,DIV%in%div[[d]])%>%select(.,one_of(c("LAT_DEC","LONG_DEC","Crab","Cod")))
     Name=paste(div[[d]],collapse="")
     if(sum(temp$Cod,na.rm=T)>0 & sum(temp$Crab,na.rm=T))
       {
