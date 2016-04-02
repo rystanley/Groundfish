@@ -46,22 +46,27 @@ Sys.time()-Start
 
 distances <- as.matrix(distances) # ********** check to see if this matches the MATLAB output
 
-dist <- data.frame(matrix(ncol = nrow(x), nrow = nrow(x)))
+max_dist <-  max(max(dist));
+max_increment = ceil((max_dist./t_increment));
 
-# this is doing two times too many calculations. You need to do the diagonal calcs then copy to the top
 
 
-for(i in 1:nrow(x)){
-  for(j in 1:nrow(x)){
-    Start=Sys.time()
-    tempsites <- cbind(c(x[i,"V2"],x[j,"V2"]),c(x[i,"V1"],x[j,"V1"]))
-    dist[i,j] <- lc.dist(translayer,tempsites,res = "dist")
-    print(paste0("i = ",i))
-    print(paste0("j = ",j))
-    print(paste0("Time = ", Sys.time()-Start))
-    
-  }
-}
+ dist <- data.frame(matrix(ncol = nrow(x), nrow = nrow(x)))
+# 
+# # this is doing two times too many calculations. You need to do the diagonal calcs then copy to the top
+# 
+# 
+# for(i in 1:nrow(x)){
+#   for(j in 1:nrow(x)){
+#     Start=Sys.time()
+#     tempsites <- cbind(c(x[i,"V2"],x[j,"V2"]),c(x[i,"V1"],x[j,"V1"]))
+#     dist[i,j] <- lc.dist(translayer,tempsites,res = "dist")
+#     print(paste0("i = ",i))
+#     print(paste0("j = ",j))
+#     print(paste0("Time = ", Sys.time()-Start))
+#     
+#   }
+# }
 
 
 for i = 1:m
