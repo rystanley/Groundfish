@@ -1,0 +1,7 @@
+This is a comparison of the distance matrix produced by R using lc.dist and Matlab using the crappy UTM translation. 
+
+Note that the Matlab output is in m and the R output is in km. 
+
+Test will be how well the two match up. Do they produce the same output in terms of lat longs compared. 
+
+Next step will be to modify the output from R to match that from Matlab then continue with the coding. 

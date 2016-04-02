@@ -1,0 +1,139 @@
+PatchScale_UniT<-function(x,path,years,nafo,Species,age,convert=24950.144,TempData,SaveIm=TRUE){
+  
+#This function will create a Yearly multi-panel plot for Extra contact (XC(t)) for a given focal species directory
+
+#x = the directory holding each matlab output
+#path = is the folder you want the files. Defulats to NULL
+#years = is the years of data available. Note that missing years must be accounted for. 
+#nafo = is the nafo divisions for the species/stock of interest
+#age= is the age of the focal fish data (1, 2, 3, 4 or a)
+#convert= is the converison factor to convert the data into fish per m2 (From previous contract)
+#TempData = is the averaged temperature data subsetted to the survey of interest (averaged across years with assc. variability)
+
+  #required packages
+  require(ggplot2)
+  require(scales)
+  require(Hmisc)
+  require(lattice)  
+  
+  #Source required function
+  fPeaks<- function(x, y, w=1, ...) {
+    #this function will find peaks in raw data * note do not apply to smooth data or loess filter will fail
+    #x and y must be specified and x usually is a row indicator (say 1:length(y))
+    # 'w' is a w is the half-width of the window used to compute the local maximum. 
+    #   (Its value should be substantially less than half the length of the array of data.) 
+    #   Small values will pick up tiny local bumps whereas larger values will pass right over those. 
+    #'span' is not specified in the function but is part of the loess filter and can be used to tweak the output
+    #    'span' ranges between 0 and 1 and is a window as a proportion of the x values (row filters) larvaer values will smooth the data more aggressively
+    #making local bumps dissapear 
+    #
+    # row indicies from the data can be obtained via output$i i.e. peaks=fpeaks(x=x,y=y,w=40,span=0.25) peaks via peaks$i
+    # the smoothed value of y is available via peaks$y.hat
+    
+    # this code is adapted from http://stats.stackexchange.com/questions/36309/how-do-i-find-peaks-in-a-dataset
+    
+    require(zoo)
+    n <- length(y)
+    y.smooth <- loess(y ~ x, ...)$fitted
+    y.max <- rollapply(zoo(y.smooth), 2*w+1, max, align="center")
+    delta <- y.max - y.smooth[-c(1:w, n+1-1:w)]
+    i.max <- which(delta <= 0) + w
+    list(x=x[i.max], i=i.max, y.hat=y.smooth)
+  }
+  
+  #Age File deliminators 
+  #Here we used the _age_ denominator in the output from matlab and will use this to loop the analysis
+  AgeDelims=c("_1_","_2_","_3_","_4_","_a_")
+  AgeNames=c("One","Two","Three","Four","Adult")
+  
+  #Which age to use and which age to name the files with
+  AgeDelim=AgeDelims[grep(age,AgeDelims)]
+  AgeName=AgeNames[grep(age,AgeDelims)]
+  
+      #Loop each year and grab the needed data
+        GroupData=NULL      
+            for (i in 1:NROW(years)){
+              FileNames=list.files(pattern=as.character(years[i])) # Identify all data froma  given year
+              rawdata=list.files(pattern='csv') # Find all the data files with .csv tags which are not used in this analysis
+              FileNames=FileNames[!FileNames %in% rawdata] # Remove the .csv file from the file list so that the proper data will always be assinged 
+              
+              fn=FileNames[grep(AgeDelim,x = FileNames)] # Subset for the right age
+              
+              BiData=read.csv(fn[2],sep=",",header=FALSE,encoding="native.enc")
+              colnames(BiData)[1:9]=c("Radius_t","PC_t","L_CL","U_CL","Rand_PC_t","p","XC_t","L95_CL","U95_CL")
+              BiData$Radius_t=BiData$Radius_t/1000 # set the calculation radii to km
+              BiData[,7:9]=BiData[,7:9]/(1000000*convert) # Set for millions of Prey species 24950.144 is a denominator needed for the code for fish per m2
+              
+              # If there is no fish for a given species, devision or year class assign values of zero as Matlab assigns NaN
+              if(is.nan(sum(BiData$PC_t[1]))){BiData[,2:length(BiData)]=0} 
+              
+              #identify the patch scale using fPeaks custom fucntion. I have played with w and span and these do a reasonible smoothing job
+              peaks=fPeaks(x=1:length(BiData$XC_t),y=BiData$XC_t,w=20,span=0.1)
+              # this first if statement will quickly decidie if there are any peaks in the data (some don't have peaks)
+              
+              if(NROW(peaks$i)==0){
+                peakx=rep(BiData$Radius_t[which(BiData$XC_t==max(BiData$XC_t))],NROW(BiData))
+              } else if(max(peaks$y.hat[peaks$i])<0){
+                peakx=rep(BiData$Radius_t[which(BiData$XC_t==max(BiData$XC_t))],NROW(BiData))
+              } else{peakx=rep(peaks$i[1],NROW(BiData))}
+              
+              
+              if(NROW(peaks$i)==0){
+                peaky=rep(BiData$XC_t[which(BiData$XC_t==max(BiData$XC_t))],NROW(BiData))
+              } else if(max(peaks$y.hat[peaks$i])<0){
+                peaky=rep(BiData$XC_t[which(BiData$XC_t==max(BiData$XC_t))],NROW(BiData))
+              } else {peaky=rep(BiData$XC_t[peaks$i[1]],NROW(BiData))}
+              
+              
+              sData=peaks$y.hat #smoothed data
+              YearTag=rep(years[i],NROW(BiData))#create a year tag for subset plotting later
+              BiData=cbind(YearTag,BiData,peakx,peaky,sData) # Add the year tag and peak location to the data
+              colnames(BiData)[1]="Year"
+              GroupData=rbind(GroupData,BiData) # Sequentially add on each year of data
+              rm(BiData,YearTag,rawdata,FileNames,peakx,peaky)
+            } #End of year loop
+  
+        GroupData=GroupData[complete.cases(GroupData),] # this will remove any NaN data for years where the focal species has no data. 
+    
+        #Get unique values of each 
+        PatchExtent=aggregate(GroupData$peakx,by=list(GroupData$Year),FUN=mean)
+        PatchContact=aggregate(GroupData$peaky,by=list(GroupData$Year),FUN=mean)
+        PatchExtent=cbind(PatchExtent,rep("Patch scale (km)",NROW(PatchExtent)))
+        colnames(PatchExtent)[1:3]=c("Year","Value","ID")
+        PatchContact=cbind(PatchContact,rep(paste("XC(t) millions of", Species),NROW(PatchContact)))
+        colnames(PatchContact)[1:3]=c("Year","Value","ID")
+        total=rbind(PatchExtent,PatchContact)
+  
+         # create a melted dataframe which we can facet wrap in ggplot2. Note that since error bars are only associated with 
+        # temperature data, we set the upper and lower confidence limits of the plots to the mean value (therefore no extent)
+        
+        PatchExtent$uc=PatchExtent$Value
+        PatchExtent$lc=PatchExtent$Value
+        PatchContact$uc=PatchContact$Value
+        PatchContact$lc=PatchContact$Value
+      
+        TempData=TempData[,colnames(PatchContact)] # take the subset of columns needed
+        TempData$ID="Mean temperature (°C)"
+  
+        AllDat=rbind(PatchExtent,PatchContact,TempData)
+        AllDat$ID=factor(AllDat$ID,levels=c(as.character(PatchExtent$ID[1]),as.character(PatchContact$ID[1]),as.character(TempData$ID[1])))
+        
+        # width of errorbars must be set to zero to avoid adding caps to the mean data for Patch Extent and XC(t)
+        p=ggplot(data=AllDat,aes(x=Year,y=Value))+facet_grid(ID~.,scale="free")+geom_point()+geom_line()+
+        geom_errorbar(aes(ymin=lc,ymax=uc,width=0))+theme_bw()+scale_x_continuous(breaks=min(years):max(years))+
+        theme(axis.text.x=element_text(angle=90))+labs(y="")
+
+      Species=gsub(" ","",Species)#Remove any spaces in the common species name for the file name of the plot
+
+      #Save or print plot
+  if(SaveIm){
+      png(filename = paste(path,"PatchScale_",Species,"_",AgeName,"yrs_NAFO_",nafo,".png",sep=""), 
+          width = 2400, height = 2400, res = 300, bg="transparent")
+          print(p)
+      dev.off()
+
+  #Function results
+  print(paste("Patch Scale(km),XC(t),& Temp(°C) ~ Year saved: ",path,"PatchScale_",Species,"_",AgeName,"yrs_NAFO_",nafo,".png",sep=""))
+  } else print(p)
+  
+} # End of function

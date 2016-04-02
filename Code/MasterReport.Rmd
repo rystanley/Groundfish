@@ -1,0 +1,36 @@
+---
+title: Spatial associations between Atlantic cod (_Gadus morhua_) and invertegrate prey (Snow crab - _Chionoecetes opilio_ and Northern shrimp - Pandalus sp.) in the northwest Atlantic (NAFO 2J +3KLNO)
+author: "Dr. Ryan RE Stanley"
+date: "March 2016"
+output:
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+    toc_depth: 3
+  html_document:
+    toc: yes
+    toc_depth: 3
+---
+
+#Introduction
+
+Changes in predator populations can have strong effects on prey populations in oceanic food webs. Studies on the temporal dynamics in populations of Atlantic cod (_Gadus morhua_) and northern shrimp have supported the "top-down" hypothesis as negative correlations have been reported between the biomass of these predator-prey species. However, results are equivocal because there is uncertainty in the estimates of consumption of shrimp by cod. Previous studies on cod and shrimp dynamics were based on analyses of biomass of the two populations over their entire range, but predation events require interaction between individuals over small spatial scales. Also, previous studies included all life stages in analyses, but the smallest fish would not be expected to consume shrimp and there was no consideration of the spatial relationships between the distributions of both populations. Size based studies of association between cod and shrimp abundance over multiple spatial scales are required to investigate predator-prey dynamics in these populations.
+
+To determine how the scale of spatial overlap between cod and inverteb ontogenetic stage in groundfish, this report will calculate potential contact statistics among cod and invertebrate prey at different age classes (juvenile (1-4) and adult (5+)) from various stocks within NAFO divisions 2J3KLNO. Extra contact (XC) statistics (Schneider 1994) estimate the chance for interactions among individual fish and prey at multiple spatial scales. XC statistics provide information on patch structure and can be used as a metric of crowding among focal species and-or life histories over time.
+
+In this report we report spatial-temporal summaries of juvenile and adult cod and. We classify the 'early life history' as the juvenile phase of a fish's development, between 1 and 4 years of life, before transitioning into an adult (5+ years). Age-structured analyses were conducted using annual multi-species trawl survey data, from 1995 onward (NAFO divisions/subdivisions 2J+3KLNO)to determine spatial pattern, patch structure, and association between spatial pattern and environment at multiple spatial scales. All data provided is geo-referenced and age-structed for the juvenile period.
+
+This report provides summaries of spatial distribution, extra contact, and associated environmental correlations at various scales for a given age, prey species, and stock. Results are presented with a common template, detailing spatial distributions followed by extra contact statistical summaries.  
+
+#Methods
+
+##Extra Contact 
+Fish abundance was randomly reallocated to the station array to evaluate whether the observed potential contact at a given scale, PC(t), is significantly different then a random spatial arrangement of fish abundance. This reallocation process is performed 1000 times, each time calculating a PC(t)~rand~ value, providing a distribution of PC(t)~rand~ by which means and 95% confidence intervals are derived. Extra contact, is the average number of "extra" neighbors within distance t, XC(t),not expected by a random spatial allocation of abundance (O'Driscoll et al. 2000). Extra contact is derived as: XC(t) = PC(t) - PC(t)~rand~.
+
+Our analyses follow methods outlined in O'Driscoll et al. 2000 except we increaded the number of reallocations from 100 to 1000. Estimates of XC(t) are calculated for every km up to the maximum separation between stations for all focal species with similar aged conspecifics.
+
+##Spatial Patterns
+Summary values of spatial pattern give an indication of what spatial scale biological patterns immerge on an annual basis. Identifying peaks in the distribution of extra contact as a function of scale provides a template to derive spatial pattern summaries. Peaks in extra contact were calculated in R using data output from MATLAB. Estimates of XC(t) were smoothed using a local weighting smoothing procedure (loess) and indices of local maxima were identified.  Local maxima were filtered to only those peaks with positive, > 0, XC(t) values. The associated spatial scale of the first peak was defined as the "patch extent" and the spatial scale of the last peak was defined as the scale of "maximum association". 
+
+##Environmental correlates
+Each trawl station provided an estimate of bottom temperature. Yearly bottom temperature averages were derived by aggregating all bottom temperatures found in a given sample year and NAFO subset. Pearson correlations between annual temperature and estimates of potential contact were calculated at three spatial scales (10, 50 and 100km).  Significance (_p-value_) was assigned to each correlation using Pierre Legendre's Pearson correlation permutation analysis routines written in _R_ (Legendre 2013). Significance (_p_<0.05) indicates a correlation significant different, greater or less, than zero.
